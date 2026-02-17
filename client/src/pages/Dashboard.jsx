@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  AlertCircle, Bell, Plus, ArrowDownLeft, Search, MapPin, 
-  ArrowRight, Activity, Package, CheckCircle, Clock, RefreshCcw 
-} from 'lucide-react';
 import DashboardCharts from '../components/DashboardCharts';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+
+import { Link } from 'react-router-dom';
+import { 
+  AlertCircle, 
+  Bell, 
+  Plus, 
+  ArrowDownLeft, 
+  Search, 
+  MapPin, 
+  ArrowRight,
+  TrendingUp,
+  Activity
+} from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -20,129 +28,147 @@ const Dashboard = () => {
         setError(null);
         const response = await api.get('/assets/stats');
         setStats(response.data);
-      } catch (err) {
-        setError('Failed to load dashboard metrics.');
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setError('Failed to load dashboard data. Please try refreshing.');
       } finally {
         setLoading(false);
       }
     };
+
     fetchStats();
   }, []);
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      <div className="relative flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-        <Activity className="absolute h-6 w-6 text-blue-600" />
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md w-full">
+        <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Error Loading Dashboard</h2>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
+        >
+          Retry
+        </button>
       </div>
-      <p className="mt-4 text-gray-500 font-medium animate-pulse">Analyzing system data...</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-4 md:p-10">
-      {/* 1. TOP NAVIGATION & STATUS */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+    <div className="min-h-screen bg-gray-50 p-6 md:p-8 space-y-8">
+      {/* Header & Notifications Area */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-            System Overview
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            Dashboard
+            {loading && <Activity className="w-5 h-5 text-blue-500 animate-pulse" />}
           </h1>
-          <p className="text-slate-500 text-lg">Welcome back, <span className="text-blue-600 font-semibold">{user?.name}</span></p>
+          <p className="text-gray-500 mt-1">Welcome back, {user?.name}</p>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full shadow-sm">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-            <span className="text-sm font-bold uppercase tracking-wider">Live System</span>
-          </div>
-          <button onClick={() => window.location.reload()} className="p-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
-            <RefreshCcw className="w-5 h-5" />
-          </button>
-        </div>
-      </header>
 
-      {/* 2. CORE KPI CARDS (High Professionalism) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        {[
-          { label: 'Total Assets', value: stats?.overview?.total || 0, icon: Package, color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Pending Requests', value: stats?.overview?.pendingRequests || 0, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-          { label: 'Return Tasks', value: stats?.overview?.pendingReturns || 0, icon: ArrowDownLeft, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-          { label: 'Active Deployments', value: stats?.overview?.active || 0, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        ].map((kpi, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">{kpi.label}</p>
-                <h3 className="text-3xl font-bold text-slate-900 mt-1">{kpi.value}</h3>
-              </div>
-              <div className={`p-3 ${kpi.bg} ${kpi.color} rounded-xl`}>
-                <kpi.icon className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* System Health / Status Indicator (Powerful feature) */}
+        {!loading && !error && (
+           <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm border border-gray-100">
+             <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+             <span className="text-sm font-medium text-gray-600">System Operational</span>
+           </div>
+        )}
       </div>
 
-      {/* 3. ALERT / ACTION ZONE */}
+      {/* Action Center (Notifications) - Top Left Priority */}
       {(stats?.overview?.pendingRequests > 0 || stats?.overview?.pendingReturns > 0) && (
-        <div className="bg-slate-900 rounded-2xl p-6 mb-10 shadow-xl flex flex-col md:flex-row gap-6 items-center">
-          <div className="bg-blue-500/20 p-4 rounded-full">
-            <Bell className="w-8 h-8 text-blue-400 animate-bounce" />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-white text-xl font-bold">Action Items Require Attention</h2>
-            <p className="text-slate-400">You have {stats.overview.pendingRequests + stats.overview.pendingReturns} priority tasks to review.</p>
-          </div>
-          <div className="flex gap-3">
-             <Link to="/admin-requests" className="bg-white text-slate-900 px-6 py-2 rounded-xl font-bold hover:bg-blue-50 transition-colors">
-              Approve Requests
-             </Link>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          
+          {/* Technician Request Notification */}
+          {stats.overview.pendingRequests > 0 && (
+            <div className="bg-white border-l-4 border-amber-500 p-5 rounded-lg shadow-sm flex items-start justify-between group hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-amber-50 text-amber-600 rounded-full mt-1">
+                  <Bell className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Pending Asset Requests</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-bold text-amber-600">{stats.overview.pendingRequests}</span> technician request{stats.overview.pendingRequests !== 1 && 's'} need approval.
+                  </p>
+                </div>
+              </div>
+              <Link 
+                to="/admin-requests" 
+                className="flex items-center gap-1 text-sm font-medium text-amber-600 hover:text-amber-700 mt-2 md:mt-0"
+              >
+                Review <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
+
+          {/* Return Request Notification */}
+          {stats.overview.pendingReturns > 0 && (
+            <div className="bg-white border-l-4 border-blue-500 p-5 rounded-lg shadow-sm flex items-start justify-between group hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-4">
+                 <div className="p-2 bg-blue-50 text-blue-600 rounded-full mt-1">
+                  <ArrowDownLeft className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Pending Returns</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-bold text-blue-600">{stats.overview.pendingReturns}</span> asset{stats.overview.pendingReturns !== 1 && 's'} waiting for return confirmation.
+                  </p>
+                </div>
+              </div>
+              <Link 
+                to="/receive-process" 
+                className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 mt-2 md:mt-0"
+              >
+                Process <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
-      {/* 4. MAIN CONTENT GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left: Charts (8/12) */}
-        <div className="lg:col-span-8 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-slate-900">Analytics Performance</h2>
-            <select className="bg-slate-50 border-none text-sm rounded-lg focus:ring-2 focus:ring-blue-500">
-              <option>Last 30 Days</option>
-              <option>Last 90 Days</option>
-            </select>
+      {/* Quick Actions Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Link to="/assets?action=add" className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:shadow-md hover:-translate-y-1 transition-all group">
+          <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-100 transition-colors">
+            <Plus className="w-6 h-6" />
           </div>
-          <DashboardCharts stats={stats} />
-        </div>
-
-        {/* Right: Quick Actions (4/12) */}
-        <div className="lg:col-span-4 flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-slate-900 mb-2 px-2">Quick Commands</h2>
-          <ActionLink to="/assets?action=add" title="New Asset" desc="Inventory intake" icon={Plus} color="bg-blue-600" />
-          <ActionLink to="/receive-process" title="Receive / Return" desc="Process logic" icon={ArrowDownLeft} color="bg-indigo-600" />
-          <ActionLink to="/assets" title="Global Search" desc="Find anything" icon={Search} color="bg-slate-700" />
-          <ActionLink to="/stores" title="Location Manager" desc="Site coordinates" icon={MapPin} color="bg-emerald-600" />
-        </div>
+          <span className="font-semibold text-gray-700 text-sm">Add New Asset</span>
+        </Link>
+        
+        <Link to="/receive-process" className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:shadow-md hover:-translate-y-1 transition-all group">
+          <div className="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-100 transition-colors">
+            <ArrowDownLeft className="w-6 h-6" />
+          </div>
+          <span className="font-semibold text-gray-700 text-sm">Receive / Return</span>
+        </Link>
+        
+        <Link to="/assets" className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:shadow-md hover:-translate-y-1 transition-all group">
+           <div className="p-3 bg-green-50 text-green-600 rounded-xl group-hover:bg-green-100 transition-colors">
+            <Search className="w-6 h-6" />
+          </div>
+          <span className="font-semibold text-gray-700 text-sm">Search Assets</span>
+        </Link>
+        
+        <Link to="/stores" className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-3 hover:shadow-md hover:-translate-y-1 transition-all group">
+           <div className="p-3 bg-orange-50 text-orange-600 rounded-xl group-hover:bg-orange-100 transition-colors">
+            <MapPin className="w-6 h-6" />
+          </div>
+          <span className="font-semibold text-gray-700 text-sm">Manage Locations</span>
+        </Link>
       </div>
+
+      {/* Main Charts & Stats */}
+      <DashboardCharts stats={stats} />
     </div>
   );
 };
-
-// Reusable Action Component for Cleanliness
-const ActionLink = ({ to, title, desc, icon: Icon, color }) => (
-  <Link to={to} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-lg transition-all group">
-    <div className={`p-3 ${color} text-white rounded-xl shadow-lg group-hover:scale-110 transition-transform`}>
-      <Icon className="w-6 h-6" />
-    </div>
-    <div className="flex-1">
-      <h4 className="font-bold text-slate-900">{title}</h4>
-      <p className="text-xs text-slate-500">{desc}</p>
-    </div>
-    <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition-colors" />
-  </Link>
-);
 
 export default Dashboard;
