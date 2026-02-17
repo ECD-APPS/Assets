@@ -60,7 +60,7 @@ const Login = () => {
              <h1 className="text-2xl font-bold tracking-tight text-slate-900 uppercase">Expo City Dubai</h1>
              <div className="flex items-center justify-center gap-2 mt-2">
                <div className="h-0.5 w-8 bg-amber-500 rounded-full"></div>
-               <p className="text-xs text-slate-500 tracking-[0.2em] uppercase font-bold">SCY & IT Asset Management</p>
+               <p className="text-xs text-slate-500 tracking-[0.2em] uppercase font-bold">SCY & IT</p>
                <div className="h-0.5 w-8 bg-amber-500 rounded-full"></div>
              </div>
            </div>
